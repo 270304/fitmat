@@ -432,13 +432,37 @@ input:focus, textarea:focus { border-color: #22c55e !important; outline: none !i
     padding: 1.2rem !important;
 }
 
-.streamlit-expanderHeader {
+/* Expander - fix text bleeding from page header */
+[data-testid="stExpander"] {
+    isolation: isolate !important;
+    contain: layout !important;
+}
+.streamlit-expanderHeader,
+[data-testid="stExpander"] summary {
     background: #1a1a1a !important;
     border: 1px solid #2a2a2a !important;
     border-radius: 8px !important;
-    color: #e8e8e8 !important;
+    color: #aaa !important;
+    font-size: 0.88rem !important;
+    font-weight: 500 !important;
+    font-family: 'DM Sans', sans-serif !important;
+    padding: 0.7rem 1rem !important;
+    position: relative !important;
+    z-index: 1 !important;
+    overflow: hidden !important;
 }
-.streamlit-expanderContent { background: #1a1a1a !important; }
+.streamlit-expanderHeader:hover,
+[data-testid="stExpander"] summary:hover {
+    color: #22c55e !important;
+    border-color: #22c55e !important;
+}
+.streamlit-expanderContent,
+[data-testid="stExpander"] > details > div {
+    background: #1a1a1a !important;
+    border: 1px solid #2a2a2a !important;
+    border-top: none !important;
+    padding: 0.5rem !important;
+}
 
 [data-baseweb="checkbox"] span { border-color: #22c55e !important; }
 
@@ -542,20 +566,21 @@ def G(html):
     st.markdown(f'<div style="color:#e8e8e8;font-family:DM Sans,sans-serif;">{html}</div>', unsafe_allow_html=True)
 
 def header(title, subtitle="", badge=None):
-    badge_html = f'<span style="background:rgba(34,197,94,0.12);border:1px solid #22c55e;border-radius:20px;padding:5px 14px;font-size:0.78rem;font-weight:500;color:#22c55e;">● {badge}</span>' if badge else ""
-    col_title, col_badge = st.columns([8, 2])
-    with col_title:
-        st.markdown(
-            f'<div style="padding-bottom:0.6rem;">'
-            f'<div style="font-family:Bebas Neue,sans-serif;font-size:2.4rem;color:#e8e8e8;letter-spacing:1px;line-height:1;">{title}</div>'
-            f'<div style="font-size:0.82rem;color:#555;margin-top:4px;">{subtitle}</div>'
-            f'</div>',
-            unsafe_allow_html=True
-        )
-    with col_badge:
-        if badge:
-            st.markdown(f'<div style="text-align:right;padding-top:0.5rem;">{badge_html}</div>', unsafe_allow_html=True)
-    st.markdown('<hr style="border:none;border-top:1px solid #222;margin:0 0 1.5rem 0;">', unsafe_allow_html=True)
+    badge_html = f'<span style="background:rgba(34,197,94,0.12);border:1px solid #22c55e;border-radius:20px;padding:5px 14px;font-size:0.78rem;font-weight:500;color:#22c55e;white-space:nowrap;">● {badge}</span>' if badge else ""
+    # Use a single contained markdown block to prevent text bleeding
+    st.markdown(
+        f'<div style="display:flex;justify-content:space-between;align-items:flex-start;'
+        f'padding-bottom:1rem;margin-bottom:0;overflow:hidden;contain:layout;">'
+        f'<div style="flex:1;">'
+        f'<div style="font-family:Bebas Neue,sans-serif;font-size:2.4rem;color:#e8e8e8;'
+        f'letter-spacing:1px;line-height:1;display:block;">{title}</div>'
+        f'<div style="font-size:0.82rem;color:#555;margin-top:4px;">{subtitle}</div>'
+        f'</div>'
+        f'<div style="flex-shrink:0;padding-top:0.4rem;">{badge_html}</div>'
+        f'</div>'
+        f'<hr style="border:none;border-top:1px solid #222;margin:0 0 1.5rem 0;display:block;">',
+        unsafe_allow_html=True
+    )
 
 def lock_gate(section):
     G(f"""
